@@ -182,24 +182,42 @@ if (!noteInput || !noteColor || !noteText || !notePlane) {
   });
 }
 
-const startMindAR = async () => {
+const startMindAR = async (sceneEl) => {
   try {
-    const mindarComponent = document.querySelector('a-scene').systems['mindar-image-system'];
+    const mindarComponent = sceneEl?.components?.['mindar-image'];
     if (!mindarComponent) return;
 
     await mindarComponent.start();
     loadingOverlay?.classList.add('hidden');
   } catch (error) {
     console.error('MindARの起動に失敗しました', error);
-    loadingOverlay.textContent = 'カメラの初期化に失敗しました。ページを再読み込みしてください。';
+    if (loadingOverlay) {
+      loadingOverlay.textContent =
+        'カメラの初期化に失敗しました。ブラウザーの権限設定を確認してページを再読み込みしてください。';
+    }
   }
+};
+
+const ensureMindARStart = (sceneEl) => {
+  if (!sceneEl) return;
+
+  if (sceneEl.components?.['mindar-image']) {
+    startMindAR(sceneEl);
+    return;
+  }
+
+  const handleComponentInitialized = (event) => {
+    if (event.detail?.name !== 'mindar-image') return;
+    sceneEl.removeEventListener('componentinitialized', handleComponentInitialized);
+    startMindAR(sceneEl);
+  };
+
+  sceneEl.addEventListener('componentinitialized', handleComponentInitialized);
 };
 
 document.addEventListener('DOMContentLoaded', () => {
   const sceneEl = document.querySelector('a-scene');
-  if (!sceneEl) return;
-
-  sceneEl.addEventListener('loaded', startMindAR);
+  ensureMindARStart(sceneEl);
 });
 
 mindarElement?.addEventListener('arReady', () => {
