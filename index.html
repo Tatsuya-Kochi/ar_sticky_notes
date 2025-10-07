@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindAR Sticky Notes</title>
+    <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>MindAR Sticky Notes</h1>
+        <p>
+          ターゲット画像をカメラにかざして、AR上に付箋メモを表示します。
+          下のフォームからメモ内容と色を変更できます。
+        </p>
+      </header>
+
+      <section id="controls">
+        <label class="field">
+          <span>メモ内容</span>
+          <textarea
+            id="note-input"
+            rows="4"
+            maxlength="120"
+            placeholder="ここにメモを書いてください"
+          ></textarea>
+          <span id="note-char-count" class="field-meta" aria-live="polite"
+            >0 / 120 文字</span
+          >
+        </label>
+        <label class="field">
+          <span>付箋の色</span>
+          <select id="note-color">
+            <option value="#F5EE84">イエロー</option>
+            <option value="#FFD0C2">ピンク</option>
+            <option value="#C8F7C5">グリーン</option>
+            <option value="#C7E8FF">ブルー</option>
+          </select>
+        </label>
+        <button id="update-note" type="button">ARに反映</button>
+        <p class="note-hint">変更内容は自動的に保存され、次回アクセス時に復元されます。</p>
+      </section>
+
+      <div id="ar-container">
+        <div id="loading">カメラを初期化しています...</div>
+        <mindar-image
+          id="mindar"
+          image-target-src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/examples/image-tracking/assets/card.mind"
+          filter-min-similarity="0.3"
+          auto-start="false"
+        >
+          <a-scene
+            mindar-image="autoStart: false"
+            vr-mode-ui="enabled: false"
+            device-orientation-permission-ui="enabled: false"
+            embedded
+            color-space="sRGB"
+            renderer="colorManagement: true, physicallyCorrectLights: true, logarithmicDepthBuffer: true"
+          >
+            <a-assets>
+              <img
+                id="target-image"
+                src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/examples/image-tracking/assets/card.png"
+                crossorigin="anonymous"
+              />
+            </a-assets>
+
+            <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+            <a-entity mindar-image-target="targetIndex: 0" id="note-entity">
+              <a-plane
+                id="note-plane"
+                width="1.2"
+                height="1.2"
+                position="0 0 0"
+                color="#F5EE84"
+                material="shader: standard; roughness: 0.8; metalness: 0"
+                shadow
+              ></a-plane>
+              <a-text
+                id="note-text"
+                value="MindAR Sticky Note"
+                color="#333"
+                width="1.1"
+                align="center"
+                wrap-count="16"
+                position="0 0 0.01"
+              ></a-text>
+            </a-entity>
+
+            <a-entity light="type: directional; intensity: 1" position="0 1 0.5"></a-entity>
+            <a-entity light="type: ambient; intensity: 0.5"></a-entity>
+          </a-scene>
+        </mindar-image>
+      </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
